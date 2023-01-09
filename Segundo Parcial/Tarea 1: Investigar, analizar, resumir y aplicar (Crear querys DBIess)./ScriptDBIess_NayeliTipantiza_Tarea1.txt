@@ -1,0 +1,386 @@
+.open db/DBIess.db
+.tables
+.header on
+.mode column
+CREATE TABLE persona(
+	id_persona INTEGER PRIMARY KEY AUTOINCREMENT,
+	nombre_persona	 CHAR(30),	
+	tel_persona CHAR(10),
+	genero_persona CHAR(10),
+	fecha_nac_persona DATE NOT NULL,
+	correo_persona TEXT	 NOT NULL,
+	direccion_persona CHAR(80)
+);
+CREATE TABLE hijo(
+	id_hijo INTEGER PRIMARY KEY AUTOINCREMENT,
+	nombre_hijo CHAR(30),
+	edad_hijo INT NOT NULL,
+	id_persona INTEGER NOT NULL,
+	CONSTRAINT fk_persona
+	FOREIGN KEY (id_persona) REFERENCES persona(id_persona)
+);
+
+CREATE INDEX IFK_id_hijo_persona ON hijo ( id_persona);
+
+CREATE TABLE afiliacion(
+	id_afiliacion INTEGER PRIMARY KEY AUTOINCREMENT,
+	nombre_afiliacion CHAR(20),
+	tipo_afiliacion CHAR(20),
+	estado_afiliacion CHAR(10)
+);
+
+CREATE TABLE baselegal(
+	id_baselegal INTEGER PRIMARY KEY AUTOINCREMENT,
+	descripcion_baselegal CHAR(50),
+	decreto_baselegal CHAR(20),
+	estado_baselegal CHAR(10),
+	id_afiliacion INTEGER NOT NULL,
+	CONSTRAINT fk_afiliacion
+	FOREIGN KEY (id_afiliacion) REFERENCES afiliacion(id_afiliacion)
+);
+
+CREATE INDEX IFK_id_baselegal_afiliacion ON baselegal ( id_afiliacion);
+
+CREATE TABLE codigo(
+	id_codigo INTEGER PRIMARY KEY AUTOINCREMENT,
+	nombre_codigo CHAR(30),
+	articulo INT NOT NULL,
+	estado_codigo CHAR(10),
+	detalle_codigo CHAR(30),
+	id_baselegal INTEGER NOT NULL,
+	CONSTRAINT fk_baselegal
+	FOREIGN KEY (id_baselegal) REFERENCES baselegal(id_baselegal)
+);
+
+CREATE INDEX IFK_id_codigo_baselegal ON codigo ( id_baselegal);
+
+CREATE TABLE aportacion(
+	id_aportacion INTEGER PRIMARY KEY AUTOINCREMENT,
+	fecha_aportacion DATE NOT NULL,
+	no_aportacion INT NOT NULL,
+	detalle_aportacion TEXT NOT NULL,
+	monto_aportacion REAL
+);
+
+CREATE TABLE empresa(
+	id_empresa INTEGER PRIMARY KEY AUTOINCREMENT,
+	nombre_empresa CHAR(40),
+	detalle_empresa CHAR(40),
+	direccion_empresa CHAR(50),
+	responsable_empresa CHAR(30)
+);
+CREATE TABLE usuario(
+	id_usuario INTEGER PRIMARY KEY AUTOINCREMENT,
+	nombre_usuario CHAR(20),
+	contrasenia_usuario CHAR(50),
+	id_persona INTEGER NOT NULL,
+	CONSTRAINT fk_persona
+	FOREIGN KEY (id_persona) REFERENCES persona(id_persona)
+);
+
+CREATE INDEX IFK_id_usuario_persona ON usuario ( id_persona);
+
+CREATE TABLE perfil(
+	id_perfil INTEGER PRIMARY KEY AUTOINCREMENT,
+	descripcion_perfil CHAR(50),
+	nombre_perfil CHAR(10),
+	id_usuario INTEGER NOT NULL,
+	CONSTRAINT fk_usuario
+	FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+);
+
+CREATE INDEX IFK_id_perfil_usuario ON perfil ( id_usuario);
+
+CREATE TABLE rol(
+	cod_rol INTEGER PRIMARY KEY AUTOINCREMENT,
+	nombre_rol CHAR(20),
+	detalle_rol CHAR(20),
+	id_perfil INTEGER NOT NULL,
+	CONSTRAINT fk_perfil
+	FOREIGN KEY (id_perfil) REFERENCES perfil(id_perfil)
+);
+
+CREATE INDEX IFK_id_rol_perfil ON rol ( id_perfil);
+
+CREATE TABLE trabajo( 
+	id_trabajo INTEGER NOT NULL,
+	id_persona INTEGER NOT NULL,
+	id_empresa INTEGER NOT NULL,
+	id_aportacion INTEGER NOT NULL,
+	id_afiliacion INTEGER NOT NULL,
+	CONSTRAINT pk_trabajo PRIMARY KEY (id_trabajo, id_persona, id_empresa, id_aportacion, id_afiliacion),
+	FOREIGN KEY (id_trabajo) REFERENCES trabajo(id_trabajo),
+	FOREIGN KEY (id_persona) REFERENCES persona(id_persona),
+	FOREIGN KEY (id_empresa) REFERENCES empresa(id_empresa),
+	FOREIGN KEY (id_aportacion) REFERENCES aportacion(id_aportacion),
+	FOREIGN KEY (id_afiliacion) REFERENCES afiliacion(id_afiliacion)
+);
+
+
+INSERT INTO persona (id_persona,nombre_persona,tel_persona,genero_persona,fecha_nac_persona,correo_persona,direccion_persona)
+VALUES(1303753618,'Pablo Abad','0987299544','masculino','12-12-1974','pabloa@gmail.com','Pichincha-Quito, La Argelia, calle 21 de Agosto y Raquel Verdezoto');
+INSERT INTO persona (id_persona,nombre_persona,tel_persona,genero_persona,fecha_nac_persona,correo_persona,direccion_persona)
+VALUES(1715241434,'Sheila Aguilar','0989964589','femenino','06-10-1952','Sheiag@gmail.com','Pichincha-Quito, Chillogallo, Av.principal y José Enrique');
+INSERT INTO persona (id_persona,nombre_persona,tel_persona,genero_persona,fecha_nac_persona,correo_persona,direccion_persona)
+VALUES(1303292583,'Frowen Alcivar','0987376378','masculino','20-07-1970','alci193@gmail.com','Manabí-El Carmen, Av.San Lorenzo y Calle 8');
+INSERT INTO persona (id_persona,nombre_persona,tel_persona,genero_persona,fecha_nac_persona,correo_persona,direccion_persona)
+VALUES(1709774621,'Eduardo Andrade','0991704664','masculino','05-05-1981','edu19@gmail.com','Pichincha-Quito, Chimbacalle, Av.Rodigo de Chavez y Pedro Vicente Maldonado');
+INSERT INTO persona (id_persona,nombre_persona,tel_persona,genero_persona,fecha_nac_persona,correo_persona,direccion_persona)
+VALUES(1720603107,'Amanda Rivera','0979184262','femenino','07-09-1999','lialrv@gmail.com','Pichincha-Quito, Lucha de los PObres, calle 21 de Agosto y Raquel Verdezoto');
+INSERT INTO persona (id_persona,nombre_persona,tel_persona,genero_persona,fecha_nac_persona,correo_persona,direccion_persona)
+VALUES(1708166283,'Sara Jimenez','0989648504','femenino','22-07-1990','sarita23@gmail.com','Puerto Quito Bellavista Av. La Concordia y Calle 32');
+INSERT INTO persona (id_persona,nombre_persona,tel_persona,genero_persona,fecha_nac_persona,correo_persona,direccion_persona)
+VALUES(1204910093,'Fabiola Lagos','0995083159','femenino','21-04-1980','fabil@gmail.com','Los Ríos, Los Rios, José Mejía Lquerica y La Pola');
+INSERT INTO persona (id_persona,nombre_persona,tel_persona,genero_persona,fecha_nac_persona,correo_persona,direccion_persona)
+VALUES(1710532670,'Jackson Ovalle','0995099542','masculino','16-05-1974','jack@gmail.com','Pichincha, Mejia, Santa Rosa y Av Loreto');
+INSERT INTO persona (id_persona,nombre_persona,tel_persona,genero_persona,fecha_nac_persona,correo_persona,direccion_persona)
+VALUES(1718361122,'Juan Salas','0993212521','masculino','03-11-1971','juank@gmail.com','Pichincha-Quito, San Bartolo Av Pedro Vicente Maldonado y Jesus');
+INSERT INTO persona (id_persona,nombre_persona,tel_persona,genero_persona,fecha_nac_persona,correo_persona,direccion_persona)
+VALUES(1709790891,'Blanca Vallejo','0961235930','femenino','06-06-1961','blancaV@gmail.com','Pichincha-Quito, Solanda Av. Ajaví y Biloxy');
+
+INSERT INTO hijo (id_hijo,nombre_hijo,edad_hijo,id_persona)
+VALUES(1204499824,'Evelin Abad',12,1303753618);
+INSERT INTO hijo (id_hijo,nombre_hijo,edad_hijo,id_persona)
+VALUES(1713984274,'Simon Abad',10,1303753618);
+INSERT INTO hijo (id_hijo,nombre_hijo,edad_hijo,id_persona)
+VALUES(1302620966,'Elicio Alcivar',16,1303292583);
+INSERT INTO hijo (id_hijo,nombre_hijo,edad_hijo,id_persona)
+VALUES(1325121635,'Lucia Alcivar',9,1303292583);
+INSERT INTO hijo (id_hijo,nombre_hijo,edad_hijo,id_persona)
+VALUES(1305120717,'Sofia Alcivar',8,1303292583);
+INSERT INTO hijo (id_hijo,nombre_hijo,edad_hijo,id_persona)
+VALUES(1722538902,'Noelia Ovalle',10,1710532670);
+INSERT INTO hijo (id_hijo,nombre_hijo,edad_hijo,id_persona)
+VALUES(1711052289,'Damian Salas',7,1718361122);
+INSERT INTO hijo (id_hijo,nombre_hijo,edad_hijo,id_persona)
+VALUES(1205021356,'Anderson Salas',17,1204910093);
+INSERT INTO hijo (id_hijo,nombre_hijo,edad_hijo,id_persona)
+VALUES(1711072205,'Adriana Andrade',13,1709774622);
+INSERT INTO hijo (id_hijo,nombre_hijo,edad_hijo,id_persona)
+VALUES(1211555022,'Sebastian Salas',5,1204910093);
+
+
+INSERT INTO afiliacion (id_afiliacion,nombre_afiliacion,tipo_afiliacion,estado_afiliacion)
+VALUES(01,'afiliado','voluntario','activo');
+INSERT INTO afiliacion (id_afiliacion,nombre_afiliacion,tipo_afiliacion,estado_afiliacion)
+VALUES(02,'afiliado','asegurado','activo');
+INSERT INTO afiliacion (id_afiliacion,nombre_afiliacion,tipo_afiliacion,estado_afiliacion)
+VALUES(03,'afiliado','voluntario','activo');
+INSERT INTO afiliacion (id_afiliacion,nombre_afiliacion,tipo_afiliacion,estado_afiliacion)
+VALUES(04,'afiliado','asegurado','activo');
+INSERT INTO afiliacion (id_afiliacion,nombre_afiliacion,tipo_afiliacion,estado_afiliacion)
+VALUES(05,'afiliado','asegurado','inactivo');
+INSERT INTO afiliacion (id_afiliacion,nombre_afiliacion,tipo_afiliacion,estado_afiliacion)
+VALUES(06,'afiliado','voluntario','activo');
+INSERT INTO afiliacion (id_afiliacion,nombre_afiliacion,tipo_afiliacion,estado_afiliacion)
+VALUES(07,'afiliado','asegurado','activo');
+INSERT INTO afiliacion (id_afiliacion,nombre_afiliacion,tipo_afiliacion,estado_afiliacion)
+VALUES(08,'afiliado','asegurado','inactivo');
+INSERT INTO afiliacion (id_afiliacion,nombre_afiliacion,tipo_afiliacion,estado_afiliacion)
+VALUES(09,'afiliado','asegurado','activo');
+INSERT INTO afiliacion (id_afiliacion,nombre_afiliacion,tipo_afiliacion,estado_afiliacion)
+VALUES(10,'pensionista','campesino','activo');
+
+INSERT INTO baselegal(id_baselegal,descripcion_baselegal,decreto_baselegal,estado_baselegal,id_afiliacion)
+VALUES(10,'Obedece a la constitución','Decreto No.11','activo',01);
+INSERT INTO baselegal(id_baselegal,descripcion_baselegal,decreto_baselegal,estado_baselegal,id_afiliacion)
+VALUES(11,'Obedece a la constitución','Decreto No.6','activo',02);
+INSERT INTO baselegal(id_baselegal,descripcion_baselegal,decreto_baselegal,estado_baselegal,id_afiliacion)
+VALUES(12,'Establece vínculo social','Decreto No.5','inactivo',03);
+INSERT INTO baselegal(id_baselegal,descripcion_baselegal,decreto_baselegal,estado_baselegal,id_afiliacion)
+VALUES(13,'Acata deberes de los cuidadanos','Decreto No.22','activo',04);
+INSERT INTO baselegal(id_baselegal,descripcion_baselegal,decreto_baselegal,estado_baselegal,id_afiliacion)
+VALUES(14,'Cumple con los derechos humanos','Decreto No.20','activo',05);
+INSERT INTO baselegal(id_baselegal,descripcion_baselegal,decreto_baselegal,estado_baselegal,id_afiliacion)
+VALUES(15,'Obedece a la Constitución','Decreto No.1','activo',06);
+INSERT INTO baselegal(id_baselegal,descripcion_baselegal,decreto_baselegal,estado_baselegal,id_afiliacion)
+VALUES(16,'Cumple con los derechos humanos','Decreto No.12','activo',07);
+INSERT INTO baselegal(id_baselegal,descripcion_baselegal,decreto_baselegal,estado_baselegal,id_afiliacion)
+VALUES(17,'Obedece a la Constitución','Decreto No.21','activo',08);
+INSERT INTO baselegal(id_baselegal,descripcion_baselegal,decreto_baselegal,estado_baselegal,id_afiliacion)
+VALUES(18,'Establece vínculo social','Decreto No.06','activo',09);
+INSERT INTO baselegal(id_baselegal,descripcion_baselegal,decreto_baselegal,estado_baselegal,id_afiliacion)
+VALUES(19,'Obedece a la Constitución','Decreto No.03','activo',10);
+
+
+INSERT INTO codigo(id_codigo,nombre_codigo,articulo,estado_codigo,detalle_codigo,id_baselegal)
+VALUES(100,'Código del Trabajo',11,'activo','Obedece artículo',10);
+INSERT INTO codigo(id_codigo,nombre_codigo,articulo,estado_codigo,detalle_codigo,id_baselegal)
+VALUES(101,'Código Civil',22,'activo','Deber ciudadano',11);
+INSERT INTO codigo(id_codigo,nombre_codigo,articulo,estado_codigo,detalle_codigo,id_baselegal)
+VALUES(102,'Código Civil',6,'activo','Acata deber ciudadano',12);
+INSERT INTO codigo(id_codigo,nombre_codigo,articulo,estado_codigo,detalle_codigo,id_baselegal)
+VALUES(103,'Código Orgánico Integral',32,'activo','Buen Vivir',13);
+INSERT INTO codigo(id_codigo,nombre_codigo,articulo,estado_codigo,detalle_codigo,id_baselegal)
+VALUES(104,'Código del Comercio',10,'activo','Cumple Obligación',14);
+INSERT INTO codigo(id_codigo,nombre_codigo,articulo,estado_codigo,detalle_codigo,id_baselegal)
+VALUES(105,'Código del Trabajo',86,'activo','Cumple Obligación',15);
+INSERT INTO codigo(id_codigo,nombre_codigo,articulo,estado_codigo,detalle_codigo,id_baselegal)
+VALUES(106,'Código del Comercio',30,'inactivo','Acata Derecho',16);
+INSERT INTO codigo(id_codigo,nombre_codigo,articulo,estado_codigo,detalle_codigo,id_baselegal)
+VALUES(107,'Código del Civil',96,'activo','Acata Derecho',17);
+INSERT INTO codigo(id_codigo,nombre_codigo,articulo,estado_codigo,detalle_codigo,id_baselegal)
+VALUES(108,'Código del Trabajo',11,'activo','Detalla Derecho',18);
+INSERT INTO codigo(id_codigo,nombre_codigo,articulo,estado_codigo,detalle_codigo,id_baselegal)
+VALUES(109,'Código del Trabajo',112,'activo','Detalle Derecho',19);
+
+
+INSERT INTO aportacion (id_aportacion,fecha_aportacion,no_aportacion,detalle_aportacion,monto_aportacion)
+VALUES(21, '14-12-2021', 12, 'Primera aportacion puntual', '40.03');
+INSERT INTO aportacion (id_aportacion,fecha_aportacion,no_aportacion,detalle_aportacion,monto_aportacion)
+VALUES(22, '05-09-2021', 7, 'Minimo de aportes', '40.03');
+INSERT INTO aportacion (id_aportacion,fecha_aportacion,no_aportacion,detalle_aportacion,monto_aportacion)
+VALUES(23, '14-02-2021', 10, 'Aportacion con exito', '89.90');
+INSERT INTO aportacion (id_aportacion,fecha_aportacion,no_aportacion,detalle_aportacion,monto_aportacion)
+VALUES(24, '04-03-2020', 5, 'Aportacion con exito', '78.05');
+INSERT INTO aportacion (id_aportacion,fecha_aportacion,no_aportacion,detalle_aportacion,monto_aportacion)
+VALUES(25, '05-02-2022', 11, 'Aportacion con exito', '40.03');
+INSERT INTO aportacion (id_aportacion,fecha_aportacion,no_aportacion,detalle_aportacion,monto_aportacion)
+VALUES(26, '25-10-2020', 8, 'Problema en tercera aportacion', '0.00');
+INSERT INTO aportacion (id_aportacion,fecha_aportacion,no_aportacion,detalle_aportacion,monto_aportacion)
+VALUES(27, '27-04-2022', 10, 'Revisar minimo de aportes', '25.03');
+INSERT INTO aportacion (id_aportacion,fecha_aportacion,no_aportacion,detalle_aportacion,monto_aportacion)
+VALUES(28, '01-01-2020', 8, 'Quinta aportacion', '78.05');
+INSERT INTO aportacion (id_aportacion,fecha_aportacion,no_aportacion,detalle_aportacion,monto_aportacion)
+VALUES(29, '18-12-2020', 15, 'Problema en quinta aportacion', '0.00');
+INSERT INTO aportacion (id_aportacion,fecha_aportacion,no_aportacion,detalle_aportacion,monto_aportacion)
+VALUES(30, '19-07-2022', 12, 'Error en aportacion', '0.00');
+INSERT INTO empresa (id_empresa,nombre_empresa,detalle_empresa,direccion_empresa,responsable_empresa)
+VALUES(1001, 'Supermaxi', 'Supermercado', 'Pichincha-Quito, Tumbaco, Av.Interoceanica', 'Juan Bonilla');
+
+INSERT INTO empresa (id_empresa,nombre_empresa,detalle_empresa,direccion_empresa,responsable_empresa)
+VALUES(1002, 'Samsung', 'Servicio de telecomunicacion', 'Pichincha-Quito, Cumbaya, Av.Interoceanica y Pje El Valle', 'Lucas Enriquez');
+INSERT INTO empresa (id_empresa,nombre_empresa,detalle_empresa,direccion_empresa,responsable_empresa)
+VALUES(1003, 'Nestle', 'Empresa de alimentos', 'Pichincha-Quito, Quito, Av.Simon Bolivar', 'Marisol Lopez');
+INSERT INTO empresa (id_empresa,nombre_empresa,detalle_empresa,direccion_empresa,responsable_empresa)
+VALUES(1004, 'Microsoft', 'Empresa de software', 'Pichincha-Quito, Nayon, Av.Simon Bolivar', 'Sofia Castillo');
+INSERT INTO empresa (id_empresa,nombre_empresa,detalle_empresa,direccion_empresa,responsable_empresa)
+VALUES(1005, 'Huawei', 'Servicio de telecomunicacion', 'Pichincha-Quito, Quito, Av.Naciones Unidas', 'Joaquin Diaz');
+INSERT INTO empresa (id_empresa,nombre_empresa,detalle_empresa,direccion_empresa,responsable_empresa)
+VALUES(1006, 'Movistar', 'Servicio de telecominucacion', 'Pichincha-Quito, Cumbaya', 'Javier Pavon');
+INSERT INTO empresa (id_empresa,nombre_empresa,detalle_empresa,direccion_empresa,responsable_empresa)
+VALUES(1007, 'Claro', 'Servicio de telecomunicacion', 'Pichincha-Quito, Cumbaya', 'Liliana Miroslava');
+INSERT INTO empresa (id_empresa,nombre_empresa,detalle_empresa,direccion_empresa,responsable_empresa)
+VALUES(1008, 'Nestle', 'Empresa de bebidas', 'Pichincha-Quito, Quito, Av.Simon Bolivar', 'Kerly Caisa');
+INSERT INTO empresa (id_empresa,nombre_empresa,detalle_empresa,direccion_empresa,responsable_empresa)
+VALUES(1009, 'Supermaxi', 'Supermercado', 'Pichincha-Quito, Av. 10 de Agosto y Nicolas Arteta', 'Ariel Paltin');
+INSERT INTO empresa (id_empresa,nombre_empresa,detalle_empresa,direccion_empresa,responsable_empresa)
+VALUES(1010, 'Maggi', 'Elaboracion de instantaneos', 'Pichincha-Quito, Quito, Av. Portugal', 'Enrique Simbaña');
+
+
+INSERT INTO usuario (id_usuario,nombre_usuario,contrasenia_usuario,id_persona)
+VALUES(31, 'pabad', 'abad1303', 1303753618);
+INSERT INTO usuario (id_usuario,nombre_usuario,contrasenia_usuario,id_persona)
+VALUES(32, 'saguiler', '1734sa', 1715241434);
+INSERT INTO usuario (id_usuario,nombre_usuario,contrasenia_usuario,id_persona)
+VALUES(33, 'falcivar', 'alcivar5', 1303292583);
+INSERT INTO usuario (id_usuario,nombre_usuario,contrasenia_usuario,id_persona)
+VALUES(34, 'eandrade', 'ade22', 1709774622);
+INSERT INTO usuario (id_usuario,nombre_usuario,contrasenia_usuario,id_persona)
+VALUES(35, 'arivera', 'otur17', 1720603107);
+INSERT INTO usuario (id_usuario,nombre_usuario,contrasenia_usuario,id_persona)
+VALUES(36, 'sjimez', 'menez0', 1708466283);
+INSERT INTO usuario (id_usuario,nombre_usuario,contrasenia_usuario,id_persona)
+VALUES(37, 'flagos', 'lagos00', 1204910093);
+INSERT INTO usuario (id_usuario,nombre_usuario,contrasenia_usuario,id_persona)
+VALUES(38, 'jovalle', '12345', 1710532670);
+INSERT INTO usuario (id_usuario,nombre_usuario,contrasenia_usuario,id_persona)
+VALUES(39, 'jsalas', '123456', 1718361122);
+INSERT INTO usuario (id_usuario,nombre_usuario,contrasenia_usuario,id_persona)
+VALUES(40, 'bvallejo', 'contra12', 1709790891);
+
+
+INSERT INTO perfil (id_perfil,descripcion_perfil,nombre_perfil,id_usuario)
+VALUES(501, 'Creado hace 2 años', 'usuario', 31);
+INSERT INTO perfil (id_perfil,descripcion_perfil,nombre_perfil,id_usuario)
+VALUES(502, 'Creado hace 5 años', 'usuario', 32);
+INSERT INTO perfil (id_perfil,descripcion_perfil,nombre_perfil,id_usuario)
+VALUES(503, 'Creado hace 1 año', 'usuario', 33);
+INSERT INTO perfil (id_perfil,descripcion_perfil,nombre_perfil,id_usuario)
+VALUES(504, 'Creado hace 3 años', 'usuario', 34);
+INSERT INTO perfil (id_perfil,descripcion_perfil,nombre_perfil,id_usuario)
+VALUES(505, 'Creado hace 1 año', 'usuario', 35);
+INSERT INTO perfil (id_perfil,descripcion_perfil,nombre_perfil,id_usuario)
+VALUES(506, 'Creado hace 3 años', 'usuario', 36);
+INSERT INTO perfil (id_perfil,descripcion_perfil,nombre_perfil,id_usuario)
+VALUES(507, 'Creado hace 5 años', 'usuario',37);
+INSERT INTO perfil (id_perfil,descripcion_perfil,nombre_perfil,id_usuario)
+VALUES(508, 'Creado hace 3 años', 'usuario', 38);
+INSERT INTO perfil (id_perfil,descripcion_perfil,nombre_perfil,id_usuario)
+VALUES(509, 'Creado hace 2 años', 'usuario', 39);
+INSERT INTO perfil (id_perfil,descripcion_perfil,nombre_perfil,id_usuario)
+VALUES(510, 'Creado hace 1 año', 'usuario', 40);
+
+
+INSERT INTO rol (cod_rol,nombre_rol,detalle_rol,id_perfil)
+VALUES(201, 'Afiliado', 'Obra social', 501);
+INSERT INTO rol (cod_rol,nombre_rol,detalle_rol,id_perfil)
+VALUES(202, 'Pensionista', 'Incapacidad', 502);
+INSERT INTO rol (cod_rol,nombre_rol,detalle_rol,id_perfil)
+VALUES(203, 'Pensionista', 'Estado', 503);
+INSERT INTO rol (cod_rol,nombre_rol,detalle_rol,id_perfil)
+VALUES(204, 'Afiliado', 'Jubilaciones', 504);
+INSERT INTO rol (cod_rol,nombre_rol,detalle_rol,id_perfil)
+VALUES(205, 'Pensionista', 'Incapacidad', 505);
+INSERT INTO rol (cod_rol,nombre_rol,detalle_rol,id_perfil)
+VALUES(206, 'Afiliado', 'Partido politico', 506);
+INSERT INTO rol (cod_rol,nombre_rol,detalle_rol,id_perfil)
+VALUES(207, 'Pensionista', 'Estado', 507);
+INSERT INTO rol (cod_rol,nombre_rol,detalle_rol,id_perfil)
+VALUES(208, 'Afiliado', 'Obra social', 508);
+INSERT INTO rol (cod_rol,nombre_rol,detalle_rol,id_perfil)
+VALUES(209, 'Pensionista', 'Estado', 509);
+INSERT INTO rol (cod_rol,nombre_rol,detalle_rol,id_perfil)
+VALUES(210, 'Pensionista', 'Incapacidad', 510);
+
+
+INSERT INTO trabajo (id_trabajo,id_persona,id_empresa,id_aportacion,id_afiliacion)
+VALUES(701,1303753618,1001,21,01);
+INSERT INTO trabajo (id_trabajo,id_persona,id_empresa,id_aportacion,id_afiliacion)
+VALUES(702,1715241434,1002,22,02);
+INSERT INTO trabajo (id_trabajo,id_persona,id_empresa,id_aportacion,id_afiliacion)
+VALUES(703,1303292583,1003,23,03);
+INSERT INTO trabajo (id_trabajo,id_persona,id_empresa,id_aportacion,id_afiliacion)
+VALUES(704,1709774621,1004,24,04);
+INSERT INTO trabajo (id_trabajo,id_persona,id_empresa,id_aportacion,id_afiliacion)
+VALUES(705,1720603107,1005,25,05);
+INSERT INTO trabajo (id_trabajo,id_persona,id_empresa,id_aportacion,id_afiliacion)
+VALUES(706,1708166283,1006,26,06);
+INSERT INTO trabajo (id_trabajo,id_persona,id_empresa,id_aportacion,id_afiliacion)
+VALUES(707,1204910093,1007,27,07);
+INSERT INTO trabajo (id_trabajo,id_persona,id_empresa,id_aportacion,id_afiliacion)
+VALUES(708,1710532670,1008,28,08);
+INSERT INTO trabajo (id_trabajo,id_persona,id_empresa,id_aportacion,id_afiliacion)
+VALUES(709,1718361122,1009,29,09);
+INSERT INTO trabajo (id_trabajo,id_persona,id_empresa,id_aportacion,id_afiliacion)
+VALUES(710,1709790891,1010,30,10);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
