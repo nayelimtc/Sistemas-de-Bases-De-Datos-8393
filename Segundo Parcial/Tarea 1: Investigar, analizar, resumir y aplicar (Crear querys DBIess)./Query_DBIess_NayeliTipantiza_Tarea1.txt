@@ -1,0 +1,124 @@
+Nombre: Tipantiza Cumbal Nayeli Michelle
+NRC: 8393
+TAREA 1 PARCIAL 2
+
+
+HAVING
+
+1.- Determinar cuales personas con perfil de usuario tiene hijos menores a 10 años.
+
+select persona.nombre_persona,
+usuario.nombre_usuario,
+hijo.nombre_hijo,
+count (usuario.id_usuario) as 'Numero de hijos', 
+hijo.edad_hijo as "Edad hijo"
+from perfil 
+inner join usuario on perfil.id_usuario = usuario.id_usuario
+inner join persona on persona.id_persona = usuario.id_persona
+inner join hijo on hijo.id_persona = usuario.id_persona
+group by persona.nombre_persona, hijo.edad_hijo
+having hijo.edad_hijo < 10;
+
+2.- Personas que han realizado aportaciones mayores a 40 dólares y  la fecha en que se realizó.
+
+select persona.nombre_persona,
+min(aportacion.monto_aportacion) as 'Aportacion minima',
+aportacion.fecha_aportacion as Fecha
+from persona
+inner join trabajo on trabajo.id_persona = persona.id_persona
+inner join aportacion on trabajo.id_aportacion = aportacion.id_aportacion
+group by persona.nombre_persona
+having aportacion.monto_aportacion > 40;
+
+3.- Hijos mayores de 15 años y el id de usuario de su padre o madre.
+
+select hijo.nombre_hijo,
+hijo.edad_hijo,
+persona.nombre_persona,
+usuario.id_usuario
+from hijo
+inner join persona on persona.id_persona = hijo.id_persona
+inner join usuario on persona.id_persona = usuario.id_persona
+group by hijo.nombre_hijo
+having hijo.edad_hijo> 15;
+
+
+GROUP BY
+
+4.- Se necesita una query que liste la cantidad de personas que trabajan en cada una de las empresas.
+
+select empresa.nombre_empresa, 
+count (trabajo.id_trabajo) as 'Cantidad Trabajadores'
+from persona 
+inner join trabajo on persona.id_persona = trabajo.id_persona
+inner join empresa on empresa.id_empresa = trabajo.id_empresa
+group by empresa.nombre_empresa;
+
+5.- Mostrar la cantidad de persona que están afiliadas y la cantidad de pensionistas.
+
+select afiliacion.nombre_afiliacion, 
+count (persona.id_persona) as 'Cantidad Usuarios'
+from persona 
+inner join trabajo on persona.id_persona = trabajo.id_persona
+inner join afiliacion on afiliacion.id_afiliacion = trabajo.id_afiliacion
+group by afiliacion.nombre_afiliacion;
+
+6.- Mostrar la cantidad de hijos que tien una persona con perfil de usuario.
+
+select persona.nombre_persona, 
+count (usuario.id_usuario) as 'Usuarios'
+from perfil 
+inner join usuario on perfil.id_usuario = usuario.id_usuario
+inner join persona on persona.id_persona = usuario.id_persona
+inner join hijo on hijo.id_persona = usuario.id_persona;
+
+
+
+FUNCIONES DE AGREGACION
+
+7.- La persona que realizó una aportación máxima, el valor y el detalle del mismo.
+
+select persona.nombre_persona,
+aportacion.fecha_aportacion as Fecha,
+aportacion.detalle_aportacion as Detalle,
+max(aportacion.monto_aportacion) as 'Aportacion maxima'
+from persona
+inner join trabajo on trabajo.id_persona = persona.id_persona
+inner join aportacion on trabajo.id_aportacion = aportacion.id_aportacion;
+
+8.- La persona que realizó una aportación mínima, el valor y la fecha en que la realizó.
+
+select persona.nombre_persona,
+min(aportacion.monto_aportacion) as 'Aportacion minima',
+aportacion.fecha_aportacion as Fecha
+from persona
+inner join trabajo on trabajo.id_persona = persona.id_persona
+inner join aportacion on trabajo.id_aportacion = aportacion.id_aportacion;
+
+
+ELECCION PROPIA
+
+9.- Usuarios que tienen más de 7 letras en su nombre de usuario y el detalle de su rol.
+
+select  usuario.nombre_usuario, 
+rol.detalle_rol as Detalle
+from rol
+inner join perfil on rol.id_perfil = perfil.id_perfil
+inner join usuario on perfil.id_usuario = usuario.id_usuario
+where length(nombre_usuario)>7;
+
+10.- Listar a las personas que tienen su nombre menos de 14 letras en su nombre_persona e indicar el nombre de su perfil.
+
+select persona.nombre_persona, 
+tel_persona, 
+nombre_perfil
+from persona
+inner join usuario on usuario.id_persona = persona.id_persona
+inner join perfil on perfil.id_usuario = usuario.id_usuario
+where length(nombre_persona)<14;
+
+
+
+
+
+
