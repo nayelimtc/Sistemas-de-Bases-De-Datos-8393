@@ -1,0 +1,433 @@
+--Nayeli Tipantiza - Amanda Rivera--
+CONNECT NAIESS2@DB_IESSTR
+Contraseña: oracle1717
+----------------------------------------------------------------------
+IESS
+----------------------------------------------------------------------
+
+
+--PERSONA--
+----------------------------------------------------------------------
+--INSERT--
+create or replace procedure "Sp_Insert_Persona" (VAR_ID_PERSONA in varchar2, VAR_NOMBREPERSONA in varchar2, VAR_TEL_PERSONA in varchar2, VAR_GENERO_PERSONA in varchar2, DT_FECHA_NAC_PERSONA in  date, VAR_CORREO_PERSONA in varchar2, VAR_PROVINCIA_PERSONA in varchar2, VAR_CANTON_PERSONA in varchar2, VAR_PARROQUIA_PERSONA in varchar2)
+AS
+Begin
+    INSERT INTO "TB_PERSONA" VALUES(VAR_ID_PERSONA,VAR_NOMBREPERSONA,VAR_NOMBREPERSONA,VAR_GENERO_PERSONA,DT_FECHA_NAC_PERSONA,VAR_CORREO_PERSONA,VAR_PROVINCIA_PERSONA,VAR_CANTON_PERSONA,VAR_PARROQUIA_PERSONA);
+End;
+/
+
+exec "Sp_Insert_Persona" ('1720683107','Amanda Rivera','7953376932','Mujer',to_date('22-08-1991', 'DD/MM/YYYY'), 'nr_thomas@gmail.com', 'Imbabura', 'Sant Elena', 'Santa Elena');
+
+COLUMN VAR_ID_PERSONA FORMAT A20
+COLUMN VAR_NOMBREPERSONA FORMAT A20
+COLUMN VAR_GENERO_PERSONA FORMAT A20
+COLUMN DT_FECHA_NAC_PERSONA FORMAT A20
+COLUMN VAR_CORREO_PERSONA FORMAT A20
+COLUMNVAR_PROVINCIA_PERSONA FORMAT A20
+COLUMN VAR_CANTON_PERSONA FORMAT A20
+COLUMN VAR_PARROQUIA_PERSONA FORMAT A20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_PERSONA;
+
+----------------------------------------------------------------------
+--UPDATE--
+
+----------------------------------------------------------------------
+--SELECT--
+
+
+
+
+
+--EMPRESA--
+
+----------------------------------------------------------------------
+--INSERT--
+create or replace procedure "Sp_Insert_Empresa" (VAR_ID_EMPRESA varchar2, VAR_NOMBRE_EMPRESA in varchar2, VAR_DETALLE_EMPRESA in varchar2, VAR_PROVINCIA_EMPRESA in varchar2, VAR_CANTON_EMPRESA in  varchar2, VAR_PARROQUIA_EMPRESA in varchar2, VAR_RESPONSABLE_EMPRESA in varchar2)
+AS
+Begin
+    INSERT INTO "TB_EMPRESA" VALUES(VAR_ID_EMPRESA,VAR_NOMBRE_EMPRESA,VAR_DETALLE_EMPRESA,VAR_PROVINCIA_EMPRESA,VAR_CANTON_EMPRESA,VAR_PARROQUIA_EMPRESA,VAR_RESPONSABLE_EMPRESA);
+End;
+/
+
+exec "Sp_Insert_Empresa" ('0215484561','SuperLucas','Empresa de cartas','Pichincha','Quito','Pifo','Joaquin Muñoz');
+
+COLUMN VAR_ID_EMPRESA FORMAT A20
+COLUMN VAR_NOMBRE_EMPRESA FORMAT A20
+COLUMN VAR_DETALLE_EMPRESA FORMAT A20
+COLUMN VAR_PROVINCIA_EMPRESA FORMAT A20
+COLUMN VAR_CANTON_EMPRESA FORMAT A20
+COLUMN VAR_PARROQUIA_EMPRESA FORMAT A20
+COLUMN VAR_RESPONSABLE_EMPRESA FORMAT A20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_EMPRESA;
+
+
+----------------------------------------------------------------------
+--UPDATE-
+create or replace procedure "Pro_Update_Empresa" (VARIDEMPRESA varchar2, VARNOMBREEMPRESA in varchar2, VARDETALLEEMPRESA in varchar2, VARPROVINCIAEMPRESA in varchar2, VARCANTONEMPRESA in  varchar2, VARPARROQUIAEMPRESA in varchar2, VARRESPONSABLEEMPRESA in varchar2)
+AS
+BEGIN
+UPDATE "TB_EMPRESA"
+SET
+VAR_NOMBRE_EMPRESA = VARNOMBREEMPRESA,
+VAR_DETALLE_EMPRESA = VARDETALLEEMPRESA,
+VAR_PROVINCIA_PERSONA = VARPROVINCIAEMPRESA,
+VAR_CANTON_PERSONA = VARCANTONEMPRESA,
+VAR_PARROQUIA_PERSONA = VARPARROQUIAEMPRESA,
+VAR_RESPONSABLE_EMPRESA =VARRESPONSABLEEMPRESA
+WHERE VAR_ID_EMPRESA = VAR_ID_EMPRESA;
+END;
+/
+
+exec "Pro_Update_Empresa" ('0215484561','SuperLucas','Empresa de cartas y detalles','Pichincha','Quito','Pifo','Joaquin Muñoz');
+
+COLUMN VAR_ID_EMPRESA FORMAT A20
+COLUMN VAR_NOMBRE_EMPRESA FORMAT A20
+COLUMN VAR_DETALLE_EMPRESA FORMAT A20
+COLUMN VAR_PROVINCIA_EMPRESA FORMAT A20
+COLUMN VAR_CANTON_EMPRESA FORMAT A20
+COLUMN VAR_PARROQUIA_EMPRESA FORMAT A20
+COLUMN VAR_RESPONSABLE_EMPRESA FORMAT A20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_EMPRESA;
+
+----------------------------------------------------------------------
+--SELECT--
+Create or replace procedure Sp_Leer_Empresa(txt_empresa_id in VARCHAR2)
+AS
+  c1 SYS_REFCURSOR;  
+BEGIN
+open c1 FOR
+SELECT
+VAR_ID_EMPRESA,
+VAR_NOMBRE_EMPRESA,
+VAR_DETALLE_EMPRESA,
+VAR_PROVINCIA_PERSONA,
+VAR_CANTON_PERSONA,
+VAR_PARROQUIA_PERSONA,
+VAR_RESPONSABLE_EMPRESA
+	FROM TB_EMPRESA
+	WHERE VAR_ID_EMPRESA = txt_empresa_id;
+	DBMS_SQL.RETURN_RESULT(c1);
+END;
+/
+
+Exec "SP_LEER_EMPRESA" ('0215484561');
+
+
+
+
+
+
+
+--HIJO--
+----------------------------------------------------------------------
+--INSERT--
+create or replace procedure "Sp_Insert_Hijo" (VAR_ID_HIJO varchar2, VAR_NOMBRE_HIJO in varchar2, INT_EDAD_HIJO in number, VAR_ID_PERSONA in varchar2)
+AS
+Begin
+    INSERT INTO "TB_HIJO" VALUES(VAR_ID_HIJO,VAR_NOMBRE_HIJO,INT_EDAD_HIJO,VAR_ID_PERSONA);
+End;
+/
+
+exec "Sp_Insert_Hijo" ('1254874125','Sofia Rivera','10','1720683107');
+
+COLUMN VAR_ID_HIJO FORMAT A20
+COLUMN VAR_NOMBRE_HIJO FORMAT A20
+COLUMN INT_EDAD_HIJO FORMAT A20
+COLUMN VAR_ID_PERSONA FORMAT A20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_HIJO;
+
+
+----------------------------------------------------------------------
+--UPDATE--
+create or replace procedure "Pro_Update_Hijo" (VARIDHIJO varchar2, VARNOMBREHIJO in varchar2, INTEDADHIJO in number, VARIDPERSONA in varchar2)
+AS
+BEGIN
+UPDATE "TB_HIJO"
+SET
+VAR_NOMBRE_HIJO = VARNOMBREHIJO,
+INT_EDAD_HIJO = INTEDADHIJO,
+VAR_ID_PERSONA = VARIDPERSONA
+WHERE VAR_ID_HIJO = VAR_ID_HIJO;
+END;
+/
+
+exec "Pro_Update_Hijo" ('1254874125','Sofia Rivera','15','1720683107');
+
+COLUMN VAR_ID_HIJO FORMAT A20
+COLUMN VAR_NOMBRE_HIJO FORMAT A20
+COLUMN INT_EDAD_HIJO FORMAT A20
+COLUMN VAR_ID_PERSONA FORMAT A20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_HIJO;
+
+
+----------------------------------------------------------------------
+--SELECT--
+Create or replace procedure Sp_Leer_Hijo(txt_hijo_id in VARCHAR2)
+AS
+  c1 SYS_REFCURSOR;  
+BEGIN
+open c1 FOR
+SELECT
+VAR_ID_HIJO,
+VAR_NOMBRE_HIJO,
+INT_EDAD_HIJO,
+VAR_ID_PERSONA
+	FROM TB_HIJO
+	WHERE VAR_ID_HIJO = txt_hijo_id;
+	DBMS_SQL.RETURN_RESULT(c1);
+END;
+/
+
+Exec "SP_LEER_HIJO" ('1254874125');
+
+
+
+
+
+
+--USUARIO--
+----------------------------------------------------------------------
+--INSERT--
+create or replace procedure "Sp_Insert_Usuario" (VAR_ID_USUARIO varchar2, VAR_NOMBRE_USUARIO in varchar2, VAR_CONTRASENIA_USUARIO in varchar2, VAR_ID_PERSONA in varchar2)
+AS
+Begin
+    INSERT INTO "TB_USUARIO" VALUES(VAR_ID_USUARIO,VAR_NOMBRE_USUARIO,VAR_CONTRASENIA_USUARIO,VAR_ID_PERSONA);
+End;
+/
+
+exec "Sp_Insert_Usuario" ('1','Rivera','goku','1720683107');
+
+COLUMN VAR_ID_USUARIO FORMAT A20
+COLUMN VAR_NOMBRE_USUARIO FORMAT A20
+COLUMN VAR_CONTRASENIA_USUARIO FORMAT A20
+COLUMN VAR_ID_PERSONA FORMAT A20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_USUARIO;
+
+----------------------------------------------------------------------
+--UPDATE--
+create or replace procedure "Pro_Update_Usuario" (VARIDUSUARIO varchar2, VARNOMBREUSUARIO in varchar2, VARCONTRASENIAUSUARIO in varchar2, VARIDPERSONA in varchar2)
+AS
+BEGIN
+UPDATE "TB_USUARIO"
+SET
+VAR_NOMBRE_USUARIO = VARNOMBREUSUARIO,
+VAR_CONTRASENIA_USUARIO = VARCONTRASENIAUSUARIO
+WHERE VAR_ID_USUARIO = VAR_ID_USUARIO;
+END;
+/
+
+exec "Pro_Update_Usuario" ('1','RiverLiliana','cocacola123','1720683107');
+
+COLUMN VAR_ID_USUARIO FORMAT A20
+COLUMN VAR_NOMBRE_USUARIO FORMAT A20
+COLUMN VAR_CONTRASENIA_USUARIO FORMAT A20
+COLUMN VAR_ID_PERSONA FORMAT A20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_USUARIO;
+
+
+----------------------------------------------------------------------
+--SELECT--
+Create or replace procedure Sp_Leer_Usuario(txt_usuario_id in VARCHAR2)
+AS
+  c1 SYS_REFCURSOR;  
+BEGIN
+open c1 FOR
+SELECT
+VAR_ID_USUARIO,
+VAR_NOMBRE_USUARIO,
+VAR_CONTRASENIA_USUARIO,
+VAR_ID_PERSONA
+	FROM TB_USUARIO
+	WHERE VAR_ID_USUARIO = txt_usuario_id;
+	DBMS_SQL.RETURN_RESULT(c1);
+END;
+/
+
+Exec "SP_LEER_USUARIO" ('1');
+
+
+
+
+
+
+
+
+--PERFIL--
+----------------------------------------------------------------------
+--INSERT--
+create or replace procedure "Sp_Insert_Perfil" (VAR_ID_PERFIL varchar2, VAR_DESCRIPCION_PERFIL in varchar2, VAR_NOMBRE_PERFIL in varchar2, VAR_ID_USUARIO in varchar2)
+AS
+Begin
+    INSERT INTO "TB_PERFIL" VALUES(VAR_ID_PERFIL,VAR_DESCRIPCION_PERFIL,VAR_NOMBRE_PERFIL,VAR_ID_USUARIO);
+End;
+/
+
+exec "Sp_Insert_Perfil" ('256','Creado hace 5 anios','Usuario','1');
+
+COLUMN VAR_ID_PERFIL FORMAT A20
+COLUMN VAR_DESCRIPCION_PERFIL FORMAT A20
+COLUMN VAR_NOMBRE_PERFIL FORMAT A20
+COLUMN VAR_ID_USUARIO FORMAT A20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_PERFIL;
+
+
+----------------------------------------------------------------------
+--UPDATE--
+create or replace procedure "Pro_Update_Perfil" (VARIDPERFIL varchar2, VARDESCRIPCIONPERFIL in varchar2, VARNOMBREPERFIL in varchar2, VARIDUSUARIO in varchar2)
+AS
+BEGIN
+UPDATE "TB_PERFIL"
+SET
+VAR_DESCRIPCION_PERFIL = VARDESCRIPCIONPERFIL,
+VAR_NOMBRE_PERFIL = VARNOMBREPERFIL,
+VAR_ID_USUARIO = VARIDUSUARIO
+WHERE VAR_ID_PERFIL = VAR_ID_PERFIL;
+END;
+/
+
+exec "Pro_Update_Perfil" ('256','Creado hace 9 anios','Administrador','1');
+
+COLUMN VAR_ID_PERFIL FORMAT A20
+COLUMN VAR_DESCRIPCION_PERFIL FORMAT A20
+COLUMN VAR_NOMBRE_PERFIL FORMAT A20
+COLUMN VAR_ID_USUARIO FORMAT A20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_PERFIL;
+
+
+----------------------------------------------------------------------
+--SELECT--
+Create or replace procedure Sp_Leer_Perfil(txt_perfil_id in VARCHAR2)
+AS
+  c1 SYS_REFCURSOR;  
+BEGIN
+open c1 FOR
+SELECT
+VAR_ID_PERFIL,
+VAR_DESCRIPCION_PERFIL,
+VAR_NOMBRE_PERFIL,
+VAR_ID_USUARIO
+	FROM TB_PERFIL
+	WHERE VAR_ID_PERFIL = txt_perfil_id;
+	DBMS_SQL.RETURN_RESULT(c1);
+END;
+/
+
+Exec "SP_LEER_PERFIL" ('256');
+
+
+
+
+
+
+
+
+--ROL--
+----------------------------------------------------------------------
+--INSERT--
+create or replace procedure "Sp_Insert_Rol" (VAR_COD_ROL varchar2, VAR_NOMBRE_ROL in varchar2, VAR_DETALLE_ROL in varchar2, VAR_ID_PERFIL in varchar2)
+AS
+Begin
+    INSERT INTO "TB_ROL" VALUES(VAR_COD_ROL,VAR_NOMBRE_ROL,VAR_DETALLE_ROL,VAR_ID_PERFIL);
+End;
+/
+
+exec "Sp_Insert_Rol" ('14785','Pensionista','Incapacidad absoluta','256');
+
+COLUMN VAR_COD_ROL FORMAT A20
+COLUMN VAR_NOMBRE_ROL FORMAT A20
+COLUMN VAR_DETALLE_ROL FORMAT A20
+COLUMN VAR_ID_PERFIL FORMAT A20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_ROL;
+
+
+----------------------------------------------------------------------
+--UPDATE--
+create or replace procedure "Pro_Update_Rol" (VARCODROL varchar2, VARNOMBREROL in varchar2, VARDETALLEROL in varchar2, VARIDPERFIL in varchar2)
+AS
+BEGIN
+UPDATE "TB_ROL"
+SET
+VAR_NOMBRE_ROL = VARNOMBREROL,
+VAR_DETALLE_ROL = VARDETALLEROL,
+VAR_COD_ROL = VARCODROL
+WHERE VAR_COD_ROL = VAR_COD_ROL;
+END;
+/
+
+exec "Pro_Update_Rol" ('14785','Afiliado','Obra social','256');
+
+COLUMN VAR_COD_ROL FORMAT A20
+COLUMN VAR_NOMBRE_ROL FORMAT A20
+COLUMN VAR_DETALLE_ROL FORMAT A20
+COLUMN VAR_ID_PERFIL FORMAT A20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_ROL;
+
+
+----------------------------------------------------------------------
+--SELECT--
+Create or replace procedure Sp_Leer_Rol(txt_rol_id in VARCHAR2)
+AS
+  c1 SYS_REFCURSOR;  
+BEGIN
+open c1 FOR
+SELECT
+VAR_COD_ROL,
+VAR_NOMBRE_ROL,
+VAR_DETALLE_ROL,
+VAR_ID_PERFIL
+	FROM TB_ROL
+	WHERE VAR_COD_ROL = txt_rol_id;
+	DBMS_SQL.RETURN_RESULT(c1);
+END;
+/
+
+Exec "SP_LEER_ROL" ('14785');
+
+
+
+Exec "SP_LEER_PERSONA" ('1720603107')
+
+
+
+
+----------------------------------QUERYS------------------------------------
+--Funcion que de el valor total de los pedidos--
+
+CREATE OR REPLACE FUNCTION FNTOTAL(CANTIDAD NUMBER, PRECIO NUMBER)
+RETURN NUMBER
+IS
+BEGIN   
+    RETURN CANTIDAD * PRECIO; 
+END FNTOTAL;
+/
+
+
+SELECT ORD.ORDER_ID, SUM(FUNCTIONTOTAL(ORDI.QUANTITY, ORDI.UNIT_PRICE))
+FROM ORDER_ITEMS ORDI
+INNER JOIN ORDERS ORD ON ORDI.ORDER_ID = ORD.ORDER_ID
+GROUP BY ORD.ORDER_ID;
+
+SELECT * FROM ORDERS ORD
+INNER JOIN ORDER_ITEMS ORDI ON ORD.ORDER_ID = ORDI.ORDER_ID;
