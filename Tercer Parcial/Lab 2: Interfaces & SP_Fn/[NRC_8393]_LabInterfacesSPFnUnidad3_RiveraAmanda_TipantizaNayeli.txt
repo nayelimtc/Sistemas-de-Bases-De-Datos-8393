@@ -1,0 +1,439 @@
+from flask import Flask, render_template, request, redirect, url_for, flash
+import oracledb
+from models.ModelUser import ModelUser
+
+# Entities:
+from models.entities.User import User
+
+app = Flask(__name__)
+
+# csrf = CSRFProtect()
+# DB_USER = "system"
+# DB_PASSWORD = "system"
+# Host = "localhost"
+# PORT = 1521
+# DNS = "XE"
+# db = MySQL(app)
+# login_manager_app = LoginManager(app)
+p_username = "system"
+# pw = getpass.getpass("Ingrese sun contraseñia: ")
+pw = "0034"
+p_password = pw
+p_dns = "localhost/xe"
+p_port = "1521"
+
+db = oracledb.connect(user=p_username, password=p_password, dsn=p_dns, port=p_port)
+
+# @login_manager_app.user_loader
+# def load_user(id):
+#     return ModelUser.get_by_id(db, id)
+
+
+@app.route('/')
+def index():
+    return redirect(url_for('home'))
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Esta es la ruta para realizar el login del aplicativo, se recibira un username y un password
+
+    Returns:
+        Si las credenciales ingresadas son correctas se redireccionara al inicio del aplicativo
+        caso contrario se detalla el error al usurio ya sea que la contraseña es incorrecta o el usuario no esta registrado
+    """    
+    if request.method == 'POST':
+        username = request.form.get("username")
+        password = request.form.get("password")
+        print("USER REQUEST: "+username)
+        print("USER PASS: "+ password)
+        logged_user = ModelUser.login(db, username)
+        if logged_user != None:
+            if logged_user.password == password:
+                # login_user(logged_user)
+                return redirect(url_for('ingreso'))
+            else:
+                flash("Contraseña Incorrecta...")
+                return render_template('auth/login.html')
+        else:
+            flash("Usuario no registrado...")
+            return render_template('auth/login.html')
+    else:
+        return render_template('auth/login.html')
+
+"""Esta es la ruta para regresar al inicio o login
+
+    Returns:
+        Si el usuario cimple su función y preiona el boton de logout este será direccionado al inicio de la página
+    """ 
+@app.route('/logout')
+def logout():
+    return redirect(url_for('login'))
+
+@app.route('/home')
+def home():
+    return render_template('home.html')
+@app.route('/tramites')
+def tramites():
+    return render_template('tramites.html')
+
+@app.route('/servicios')
+def servicios():
+    return render_template('servicios.html')
+
+@app.route('/contactenos')
+def contactenos():
+    return render_template('contactenos.html')
+
+@app.route('/baselegal')
+def baselegal():
+    return render_template('baselegal.html')
+
+@app.route('/ingreso')
+def ingreso():
+    return render_template('ingreso.html')
+
+@app.route('/aportacion')
+def aportacion():
+    return render_template('aportacion.html')
+
+@app.route('/logservicio')
+def logservicio():
+    return render_template('logservicio.html')
+
+@app.route('/opc')
+def opc():
+    return render_template('opc.html')
+
+@app.route('/link')
+def link():
+    return render_template('https://www.iess.gob.ec/documents/10162/2220562/Ley+Organica+del+Sistema+Nacioanl+de+Contratacion+Publica')
+
+
+
+
+
+
+@app.route('/protected')
+# @login_required
+def protected():
+    return "<h1>Esta es una vista protegida, solo para usuarios autenticados.</h1>"
+
+"""Si no la conexión no es la correcta se devolvera un error
+
+    Returns:
+        Imprimer el error de 401 en el login
+    """ 
+
+def status_401(error):
+    return redirect(url_for('login'))
+
+-Coneccion con la base de datos
+import oracledb
+import getpass
+import csv
+
+"""Se definen las variables necesarias para lograr la conexión de Python con Oracle
+
+    Returns:
+        Si las credenciales ingresadas son correctas se ingresará a la base de datos con la cual
+        se reqiera trabajar 
+    """ 
+p_username = "system"
+pw = "0034"
+p_password = pw
+p_dns = "localhost/xe"
+p_port = "1521"
+
+con = oracledb.connect(user=p_username, password=p_password, dsn=p_dns, port=p_port)
+
+# ------------------------CREACION PERSONA------------------------
+"""Una vez conectada la base se procede a leer un archivo csv creado para la tabla de personas
+
+    Returns:
+        Si las credenciales ingresadas son correctas se vaa leer cada columna de acuerdo a la base de datos
+        luego se define el número de columnas y una vez establecidos bien los parémtros se cargarán los datos
+        del csv a la base de la tabla especificada en este caso persona
+    """ 
+"""reader = csv.reader(open("C:\ITIN\PROJECT\TB_PERSONA.csv","r"))
+#next(reader) # assumption is your db_table has header
+columns = []
+for line in reader:
+    columns.append(line)
+print("read")
+
+cur = con.cursor()
+print("Inserting data 2")
+dbdata = []
+for line in columns:
+    line.pop(0)
+    dbdata.append(line)
+print(dbdata)
+dbdata.pop(0)
+for line in dbdata:
+    insrt_stmt = 'INSERT INTO "TB_PERSONA" VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9)'
+    cur.execute(insrt_stmt, line)
+con.commit()
+print("---Carga Persona---")
+cur.close()
+
+print("completed")"""
+
+# ------------------------CREACION HIJO-----------------------
+"""reader = csv.reader(open("C:\ITIN\PROJECT\TB_HIJO.csv","r"))
+#next(reader) # assumption is your db_table has header
+columns = []
+for line in reader:
+    columns.append(line)
+print("read")
+
+cur = con.cursor()
+print("Inserting data 2")
+dbdata = []
+for line in columns:
+    line.pop(0)
+    dbdata.append(line)
+print(dbdata)
+dbdata.pop(0)
+for line in dbdata:
+    insrt_stmt = 'INSERT INTO "TB_HIJO" VALUES (:1, :2, :3, :4)'
+    cur.execute(insrt_stmt, line)
+con.commit()
+print("---Carga Hijo---")
+cur.close()
+
+print("Carga Complta....")"""
+
+# ------------------------CREACION AFILIACION------------------------
+"""reader = csv.reader(open("C:\ITIN\PROJECT\TB_AFILIACION.csv","r"))
+#next(reader) # assumption is your db_table has header
+columns = []
+for line in reader:
+    columns.append(line)
+print("read")
+
+cur = con.cursor()
+print("Inserting data 1")
+dbdata = []
+for line in columns:
+    line.pop(0)
+    dbdata.append(line)
+print(dbdata)
+dbdata.pop(0)
+for line in dbdata:
+    insrt_stmt = 'INSERT INTO "TB_AFILIACION" VALUES (:1, :2, :3, :4)'
+    cur.execute(insrt_stmt, line)
+con.commit()
+print("---Carga Persona---")
+cur.close()
+
+print("completed")"""
+
+# ------------------------CREACION BASE LEGAL-----------------------
+"""reader = csv.reader(open("C:\ITIN\PROJECT\TB_BASELEGAL.csv","r"))
+#next(reader) # assumption is your db_table has header
+columns = []
+for line in reader:
+    columns.append(line)
+print("read")
+
+cur = con.cursor()
+print("Inserting data 5")
+dbdata = []
+for line in columns:
+    line.pop(0)
+    dbdata.append(line)
+print(dbdata)
+dbdata.pop(0)
+for line in dbdata:
+    insrt_stmt = 'INSERT INTO "TB_BASELEGAL" VALUES (:1, :2, :3, :4, :5)'
+    cur.execute(insrt_stmt, line)
+con.commit()
+print("---Carga Base Legal---")
+cur.close()
+
+print("completed")"""
+# ------------------------CREACION CODIGO-----------------------
+"""reader = csv.reader(open("C:\ITIN\PROJECT\TB_CODIGO.csv","r"))
+#next(reader) # assumption is your db_table has header
+columns = []
+for line in reader:
+    columns.append(line)
+print("read")
+
+cur = con.cursor()
+print("Inserting data 5")
+dbdata = []
+for line in columns:
+    line.pop(0)
+    dbdata.append(line)
+print(dbdata)
+dbdata.pop(0)
+for line in dbdata:
+    insrt_stmt = 'INSERT INTO "TB_CODIGO" VALUES (:1, :2, :3, :4, :5, :6)'
+    cur.execute(insrt_stmt, line)
+con.commit()
+print("---Carga Codigo---")
+cur.close()
+
+print("completed")"""
+# ------------------------CREACION APORTACION-----------------------
+"""reader = csv.reader(open("C:\ITIN\PROJECT\TB_APORTACION.csv","r"))
+#next(reader) # assumption is your db_table has header
+columns = []
+for line in reader:
+    columns.append(line)
+print("read")
+
+cur = con.cursor()
+print("Inserting data 6")
+dbdata = []
+for line in columns:
+    line.pop(0)
+    dbdata.append(line)
+print(dbdata)
+dbdata.pop(0)
+for line in dbdata:
+    insrt_stmt = 'INSERT INTO "TB_APORTACION" VALUES (:1, :2, :3, :4, :5)'
+    cur.execute(insrt_stmt, line)
+con.commit()
+print("---Carga Aportacion---")
+cur.close()
+
+print("completed")"""
+# ------------------------CREACION EMPRESA-----------------------
+"""reader = csv.reader(open("C:\ITIN\PROJECT\TB_EMPRESA.csv","r"))
+#next(reader) # assumption is your db_table has header
+columns = []
+for line in reader:
+    columns.append(line)
+print("read")
+
+cur = con.cursor()
+print("Inserting data 5")
+dbdata = []
+for line in columns:
+    line.pop(0)
+    dbdata.append(line)
+print(dbdata)
+dbdata.pop(0)
+for line in dbdata:
+    insrt_stmt = 'INSERT INTO "TB_EMPRESA" VALUES (:1, :2, :3, :4, :5, :6, :7)'
+    cur.execute(insrt_stmt, line)
+con.commit()
+print("---Carga EMPRESA---")
+cur.close()
+print("Carga Completa")"""
+# ------------------------CREACION USUARIO----------------------
+"""reader = csv.reader(open("C:\ITIN\PROJECT\TB_USUARIO.csv","r"))
+#next(reader) # assumption is your db_table has header
+columns = []
+for line in reader:
+    columns.append(line)
+print("read")
+
+cur = con.cursor()
+print("Inserting data 5")
+dbdata = []
+for line in columns:
+    line.pop(0)
+    dbdata.append(line)
+print(dbdata)
+dbdata.pop(0)
+for line in dbdata:
+    insrt_stmt = 'INSERT INTO "TB_USUARIO" VALUES (:1, :2, :3, :4)'
+    cur.execute(insrt_stmt, line)
+con.commit()
+print("---Carga USUARIO---")
+cur.close()
+print("Carga Completa")"""
+# ------------------------CREACION PERFIL-----------------------
+"""reader = csv.reader(open("C:\ITIN\PROJECT\TB_PERFIL.csv","r"))
+#next(reader) # assumption is your db_table has header
+columns = []
+for line in reader:
+    columns.append(line)
+print("read")
+
+cur = con.cursor()
+print("Inserting data 5")
+dbdata = []
+for line in columns:
+    line.pop(0)
+    dbdata.append(line)
+print(dbdata)
+dbdata.pop(0)
+for line in dbdata:
+    insrt_stmt = 'INSERT INTO "TB_PERFIL" VALUES (:1, :2, :3, :4)'
+    cur.execute(insrt_stmt, line)
+con.commit()
+print("---Carga PERFIL---")
+cur.close()
+print("Carga Completa")"""
+# ------------------------CREACION ROL-----------------------
+"""reader = csv.reader(open("C:\ITIN\PROJECT\TB_ROL.csv","r"))
+#next(reader) # assumption is your db_table has header
+columns = []
+for line in reader:
+    columns.append(line)
+print("read")
+
+cur = con.cursor()
+print("Inserting data 5")
+dbdata = []
+for line in columns:
+    line.pop(0)
+    dbdata.append(line)
+print(dbdata)
+dbdata.pop(0)
+for line in dbdata:
+    insrt_stmt = 'INSERT INTO "TB_ROL" VALUES (:1, :2, :3, :4)'
+    cur.execute(insrt_stmt, line)
+con.commit()
+print("---Carga ROL---")
+cur.close()
+print("Carga Completa")"""
+# ------------------------CREACION TRABAJO-----------------------
+"""reader = csv.reader(open("C:\ITIN\PROJECT\TB_TRABAJO.csv","r"))
+#next(reader) # assumption is your db_table has header
+columns = []
+for line in reader:
+    columns.append(line)
+print("read")
+
+cur = con.cursor()
+print("Inserting data 5")
+dbdata = []
+for line in columns:
+    line.pop(0)
+    dbdata.append(line)
+print(dbdata)
+dbdata.pop(0)
+for line in dbdata:
+    insrt_stmt = 'INSERT INTO "TB_TRABAJO" VALUES (:1, :2, :3, :4, :5)'
+    cur.execute(insrt_stmt, line)
+con.commit()
+print("---Carga TRABAJO---")
+cur.close()
+print("Carga Completa")"""
+-Renderización
+
+"""Si esta ruta no esta bien definida
+
+    Returns:
+        La página no carga y devolvera el mensaje de página no encontrada junto con el error 404
+    """ 
+def status_404(error):
+    return "<h1>Página no encontrada</h1>", 404
+
+
+if __name__ == '__main__':
+    app.register_error_handler(401, status_401)
+    app.register_error_handler(404, status_404)
+    app.secret_key = 'super secret key'
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.run()
+    
+from flask import Flask, render_template
+
+
