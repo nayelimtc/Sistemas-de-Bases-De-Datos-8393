@@ -1,0 +1,198 @@
+----1TRIGGER-------------------------
+-Primero se crea una base de datos donde se va a almacenar los cambios que se desean
+-auditar
+
+column VAR_ID_AUDITORIA format a50
+column VAR_NOMBRE_TABLA format a20
+column VAR_ACCION format a20
+column DT_FECHA format a20
+set serveroutput on
+set linesize 300
+
+CREATE TABLE TB_AUDITORIA (
+  id INT,
+  var_nombre_tabla VARCHAR2(30),
+  var_accion VARCHAR2(30),
+  dt_fecha DATE
+);
+
+-La tabla que se va auditar en ese caso es la tabla de Afiliacion
+CREATE OR REPLACE NONEDITIONABLE TRIGGER TG_AUDITORIA_AFILIADO
+AFTER INSERT OR UPDATE OR DELETE ON TB_AFILIACION
+FOR EACH ROW
+DECLARE
+  V_ACCION VARCHAR2(30);
+BEGIN
+  IF INSERTING THEN
+    V_ACCION := 'INSERT';
+  ELSIF UPDATING THEN
+    V_ACCION := 'UPDATE';
+  ELSIF DELETING THEN
+    V_ACCION := 'DELETE';
+  END IF;
+
+  INSERT INTO TB_AUDITORIA (ID, VAR_NOMBRE_TABLA, VAR_ACCION, DT_FECHA)
+  VALUES (:NEW.VAR_ID_AFILIACION, 'TB_AFILIACION', V_ACCION, SYSDATE);
+END;
+/
+
+column var_id_afiliacion format a35
+column var_nombre_afiliacion format a20
+column var_tipo_afiliacion format a20
+column var_estado_afiliacion format a20
+set serveroutput on
+set linesize 300
+
+
+--Para comprobar el trigger se a actualizar una tabla de afiliación, pero antes se mostrará
+
+select * from TB_AFILIACION WHERE VAR_ID_AFILIACION ='18cd7c7aa37047e782caa79f1d0d5de9';
+
+
+--Ahora vamos a actulizar la misma fila con el nombre
+
+UPDATE TB_AFILIACION
+SET VAR_NOMBRE_AFILIACION = 'Asegurado', VAR_ESTADO_AFILIACION = 'Inactivo'
+WHERE VAR_ID_AFILIACION = '18cd7c7aa37047e782caa79f1d0d5de9';
+
+-Mirar si esta acción haya sido almacenada
+
+
+
+----2 TRIGGER-------------------------
+
+--Si el hijo de alguna persona afiliada es mayor a 18 este tendrá el mensaje de que
+--ya no cuenta con el seguro por parte del padre
+
+column VAR_ID_HIJO format a35
+column VAR_NOMBRE_HIJO format a20
+column INT_EDAD_HIJO format 9999
+column VAR_ID_PERSONA format a35
+set serveroutput on
+set linesize 300
+
+
+--TRIGGER--
+CREATE OR REPLACE TRIGGER Tg_mensaje_edad_18
+AFTER UPDATE ON TB_HIJO
+FOR EACH ROW
+BEGIN
+  IF :NEW.INT_EDAD_HIJO >= 18 THEN
+    DBMS_OUTPUT.PUT_LINE('Ya no cuenta con seguro de salud por parte del padre');
+  END IF;
+END;
+/
+
+--Comprobación--
+
+-Primero observamos la fila que queremos actualizar
+
+select * from TB_HIJO where VAR_ID_HIJO = 'b7f626e2685b46c6aabbcd26ce072188';
+
+-Actualizamos la tabla
+UPDATE TB_HIJO
+SET INT_EDAD_HIJO = 18 WHERE VAR_ID_HIJO = 'b7f626e2685b46c6aabbcd26ce072188';
+
+
+------3 TRIGGER-------
+
+--En caso de que una persona actualice l número de aportaciones al número 24 o mayor este 
+--observará el mensaje de que ya puede reclamar sus fondos de cesantía
+
+
+column VAR_ID_APORTACION format a35
+column DT_FECHA_APORTACION format a20
+column INT_NO_APORTACION format 9999
+column VAR_DETALLE_APORTACION format a40
+column VAR_MONTO_APORTACION format a20
+set serveroutput on
+set linesize 300
+
+---trigger--
+CREATE OR REPLACE TRIGGER Tg_mensaje_fondos
+AFTER UPDATE ON TB_APORTACION
+FOR EACH ROW
+BEGIN
+  IF :NEW.INT_NO_APORTACION >= 24 THEN
+    DBMS_OUTPUT.PUT_LINE('Ya puede reclamar los fondos de cesantía');
+  END IF;
+END;
+/
+
+--Comprobación
+--observar la fila a modificar
+select * from TB_APORTACION where VAR_ID_APORTACION = '82a9098ce7694d5382c777bfe7195eb6';
+--actulizar el campo de número de aportación
+UPDATE TB_APORTACION
+SET INT_NO_APORTACION = 24 WHERE VAR_ID_APORTACION = '82a9098ce7694d5382c777bfe7195eb6';
+
+
+------4 TRIGGER-----
+
+--Verificar si una persona es pensionista (es decir, si su edad es mayor o igual a 65 años) 
+y muestre un mensaje indicando que es acreedora a la pensión otorgada por la institución.
+
+CREATE OR REPLACE TRIGGER TRG_VERIFICAR_PENSIONISTA
+BEFORE INSERT OR UPDATE ON TB_PERSONA
+FOR EACH ROW
+DECLARE
+    edad NUMBER;
+BEGIN
+    -- Calculamos la edad de la persona a partir de su fecha de nacimiento
+    edad := TRUNC(MONTHS_BETWEEN(SYSDATE, :NEW.DT_FECHA_NAC_PERSONA) / 12);
+
+    -- Si la persona tiene 65 años o más, es pensionista
+    IF edad >= 65 THEN
+        DBMS_OUTPUT.PUT_LINE('La persona es acreedora a la pensión otorgada por la institución');
+    END IF;
+END;
+/
+
+
+--Comprobamos ingresando datos--
+
+INSERT INTO TB_PERSONA 
+(VAR_ID_PERSONA, VAR_NOMBRE_PERSONA, VAR_TEL_PERSONA, VAR_GENERO_PERSONA, DT_FECHA_NAC_PERSONA, VAR_CORREO_PERSONA, VAR_PROVINCIA_PERSONA, VAR_CANTON_PERSONA, VAR_PARROQUIA_PERSONA)
+VALUES ('1845612547', 'Victor Borquez', '0961245754', 'Masculino', TO_DATE('1950-01-01', 'YYYY-MM-DD'), 'victorcz@gmail.com', 'Pichincha', 'Quito', 'La Floresta');
+
+--Imprimir datos ordenados--
+column VAR_ID_PERSONA format a20
+column VAR_NOMBRE_PERSONA format a20
+column VAR_TEL_PERSONA format a15
+column VAR_GENERO_PERSONA format a15
+column VAR_CORREO_PERSONA format a20
+column VAR_PROVINCIA_PERSONA format a20
+column VAR_CANTON_PERSONA format a20
+column VAR_PARROQUIA_PERSONA format a20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_PERSONA 
+WHERE VAR_ID_PERSONA = 1845612547;
+
+
+----5 TRIGGER----
+
+--Verificar si el nombre de usuario ya existe en la tabla y evitar su inserción si ya existe.
+
+CREATE OR REPLACE TRIGGER TRG_TB_USUARIO_BEFORE_INSERT
+BEFORE INSERT ON TB_USUARIO
+FOR EACH ROW
+DECLARE
+    V_COUNT INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO V_COUNT FROM TB_USUARIO WHERE VAR_NOMBRE_USUARIO = :NEW.VAR_NOMBRE_USUARIO;
+    IF V_COUNT > 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'El nombre de usuario ya existe en la tabla.');
+    END IF;
+END;
+/
+
+--Insertar nuevo registro--
+INSERT INTO TB_USUARIO (VAR_ID_USUARIO, VAR_NOMBRE_USUARIO, VAR_CONTRASENIA_USUARIO, VAR_ID_PERSONA)
+VALUES ('965', 'nayelimtc', 'ponymalta123', '1752373142');
+
+
+show errors;
+
+
+

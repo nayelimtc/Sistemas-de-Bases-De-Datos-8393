@@ -1,0 +1,121 @@
+--PRIMER PROCEDIMIENTO--
+
+-Realizar un proceso que indique si las persona tiene mas de 24 aportaciones para
+-poder ser acreedora de el préstamo quirografario
+
+CREATE OR REPLACE PROCEDURE sp_consulta_aportaciones AS
+    c1 SYS_REFCURSOR;
+BEGIN
+    OPEN c1 FOR SELECT
+                                tb_persona.var_nombre_persona,
+                                tb_aportacion.int_no_aportacion,
+                                tb_aportacion.var_monto_aportacion
+                            FROM
+                                     tb_trabajo
+                                INNER JOIN tb_persona ON tb_trabajo.var_id_persona = tb_persona.var_id_persona
+                                INNER JOIN tb_aportacion ON tb_trabajo.var_id_aportacion = tb_aportacion.var_id_aportacion
+                WHERE
+                    tb_aportacion.int_no_aportacion >= 24;
+
+    dbms_sql.return_result(c1);
+END;
+/
+
+--Comprobar el procedieminto creado
+
+EXEC sp_consulta_aportaciones;
+
+
+--SEGUNDO PROCEDIMIENTO--
+
+--Personas que tengan mas de 3 aportaciones para poder tener
+--acceso al servicio de salud
+
+CREATE OR REPLACE PROCEDURE sp_aportacion_salud AS
+    c1 SYS_REFCURSOR;
+BEGIN
+    OPEN c1 FOR SELECT
+                                tb_persona.var_nombre_persona,
+                                tb_aportacion.int_no_aportacion,
+                                tb_aportacion.var_monto_aportacion
+                            FROM
+                                     tb_trabajo
+                                INNER JOIN tb_persona ON tb_trabajo.var_id_persona = tb_persona.var_id_persona
+                                INNER JOIN tb_aportacion ON tb_trabajo.var_id_aportacion = tb_aportacion.var_id_aportacion
+                WHERE
+                    tb_aportacion.int_no_aportacion >= 3;
+
+    dbms_sql.return_result(c1);
+END;
+/
+
+
+EXEC sp_aportacion_salud;
+
+
+--TERCER PROCEDIMIENTO--
+
+---Mostrar los artículos con el código al que pertenezcan que han sido cambiados o suspendidos con el paso del tiempo y 
+--han afectado a las personas aseguradas.
+
+CREATE OR REPLACE PROCEDURE sp_codigo_afiliacion AS
+    c1 SYS_REFCURSOR;
+BEGIN
+    OPEN c1 FOR SELECT TB_CODIGO.INT_ARTICULO, TB_CODIGO.VAR_NOMBRE_CODIGO, TB_CODIGO.VAR_ESTADO_CODIGO, TB_AFILIACION.VAR_NOMBRE_AFILIACION
+                FROM TB_CODIGO
+                INNER JOIN TB_BASELEGAL ON TB_CODIGO.VAR_ID_BASELEGAL = TB_BASELEGAL.VAR_ID_BASELEGAL
+                INNER JOIN TB_AFILIACION ON TB_BASELEGAL.VAR_ID_AFILIACION = TB_AFILIACION.VAR_ID_AFILIACION
+                WHERE VAR_ESTADO_CODIGO = 'Inactivo' AND VAR_NOMBRE_AFILIACION = 'Asegurado';
+
+    dbms_sql.return_result(c1);
+END;
+/
+
+EXEC sp_codigo_afiliacion;
+
+
+--CUARTO PROCEDIMIENTO--
+--Las personas de Pichincha que han realizado aportaciones menores a 55 dólares y la fecha en que realizaron dicha aportación,
+--esto para realizar cálculos de de lo que al afiliado le corresponde entregar un aporte al IESS del 9,45% de su sueldo o salario; 
+--mientras que al empleador, el 11,15% del salario del trabajador.
+
+CREATE OR REPLACE PROCEDURE sp_consulta_aportacion AS
+    c1 SYS_REFCURSOR;
+BEGIN
+    OPEN c1 FOR SELECT TB_PERSONA.VAR_NOMBRE_PERSONA, TB_PERSONA.VAR_PROVINCIA_PERSONA,
+                        TB_APORTACION.VAR_MONTO_APORTACION AS "MONTO APORTACION",
+                        TB_APORTACION.DT_FECHA_APORTACION AS "FECHA APORTACION"
+                 FROM TB_PERSONA
+                 INNER JOIN TB_TRABAJO ON TB_TRABAJO.VAR_ID_PERSONA=TB_PERSONA.VAR_ID_PERSONA
+                 INNER JOIN TB_APORTACION ON TB_TRABAJO.VAR_ID_APORTACION=TB_APORTACION.VAR_ID_APORTACION
+                 WHERE TB_APORTACION.VAR_MONTO_APORTACION < 900 AND TB_PERSONA.VAR_PROVINCIA_PERSONA = 'Pichincha';
+
+    dbms_sql.return_result(c1);
+END;
+/
+
+EXEC sp_consulta_aportacion;
+
+
+
+--QUINTO PROCEDIMIENTO--
+--Mostrar las personas que sean Pesionistas y consten en el sistema del Iess para contabilizar cuantas personas son acreedoras de
+--la pensión otorgada por la institución.
+
+
+CREATE OR REPLACE PROCEDURE sp_consulta_usuario
+AS
+  c1 SYS_REFCURSOR;
+BEGIN
+  OPEN c1 FOR
+    SELECT TB_USUARIO.VAR_NOMBRE_USUARIO, TB_ROL.VAR_NOMBRE_ROL, TB_PERFIL.VAR_NOMBRE_PERFIL
+    FROM TB_ROL
+    INNER JOIN TB_PERFIL ON TB_ROL.VAR_ID_PERFIL = TB_PERFIL.VAR_ID_PERFIL
+    INNER JOIN TB_USUARIO ON TB_PERFIL.VAR_ID_USUARIO= TB_USUARIO.VAR_ID_USUARIO
+    WHERE VAR_NOMBRE_ROL = 'Pensionista' AND VAR_NOMBRE_PERFIL = 'Usuario';
+  dbms_sql.return_result(c1);
+END;
+/
+
+EXEC sp_consulta_usuario;
+
