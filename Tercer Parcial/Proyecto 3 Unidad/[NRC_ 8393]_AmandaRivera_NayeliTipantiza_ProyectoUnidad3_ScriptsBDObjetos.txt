@@ -1,0 +1,430 @@
+--SCRIPTS DE BASE DE DATOS Y OBJETOS DE LA MISMA--
+--Estudiantes: Tipantiza Nayeli y Rivera Amanda--
+
+CONNECT NAIESS2@DB_IESSTR
+oracle1717
+
+-------------------------INDEX-------------------------
+
+-----Primer Index-----
+CREATE UNIQUE INDEX ix_uniq_persona
+ON TB_PERSONA(VAR_CORREO_PERSONA);
+
+-----Segundo Index-----
+CREATE UNIQUE INDEX ix_uniq_usuario
+ON TB_USUARIO(VAR_NOMBRE_USUARIO);
+
+-----Tercer Index-----
+CREATE UNIQUE INDEX ix_uniq_empresa
+ON TB_EMPRESA(VAR_NOMBRE_EMPRESA);
+
+-----Cuarto Index-----
+CREATE UNIQUE INDEX ix_uniq_baselegal
+ON TB_BASELEGAL(VAR_DESCRIPCION_BASELEGAL;
+
+-----Quinto Index-----
+CREATE UNIQUE INDEX ix_uniq_codigo
+ON TB_CODIGO(VAR_DETALLE_CODIGO);
+
+
+-------------------------TRIGGERS-------------------------
+
+-----Primer Trigger-----
+--Primero se crea una tabla donde se va a almacenar los cambios que se 
+desean auditar--
+
+CREATE TABLE TB_AUDITORIA (
+  id INT,
+  var_nombre_tabla VARCHAR2(30),
+  var_accion VARCHAR2(30),
+  dt_fecha DATE
+);
+
+--La tabla que se va auditar en ese caso es la tabla de Afiliacion--
+CREATE OR REPLACE NONEDITIONABLE TRIGGER TG_AUDITORIA_AFILIADO
+AFTER INSERT OR UPDATE OR DELETE ON TB_AFILIACION
+FOR EACH ROW
+DECLARE
+  V_ACCION VARCHAR2(30);
+BEGIN
+  IF INSERTING THEN
+    V_ACCION := 'INSERT';
+  ELSIF UPDATING THEN
+    V_ACCION := 'UPDATE';
+  ELSIF DELETING THEN
+    V_ACCION := 'DELETE';
+  END IF;
+
+  INSERT INTO TB_AUDITORIA (ID, VAR_NOMBRE_TABLA, VAR_ACCION, DT_FECHA)
+  VALUES (:NEW.VAR_ID_AFILIACION, 'TB_AFILIACION', V_ACCION, SYSDATE);
+END;
+/
+
+
+column var_id_afiliacion format a35
+column var_nombre_afiliacion format a20
+column var_tipo_afiliacion format a20
+column var_estado_afiliacion format a20
+set serveroutput on
+set linesize 300
+
+
+--Para comprobar el trigger se a actualizar una tabla de afiliación--
+
+select * from TB_AFILIACION WHERE VAR_ID_AFILIACION ='18cd7c7aa37047e782caa79f1d0d5de9';
+
+
+--Ahora vamos a actulizar la misma fila con el nombre--
+
+UPDATE TB_AFILIACION
+SET VAR_NOMBRE_AFILIACION = 'Asegurado', VAR_ESTADO_AFILIACION = 'Inactivo'
+WHERE VAR_ID_AFILIACION = '18cd7c7aa37047e782caa79f1d0d5de9';
+
+
+-----Segundo Trigger-----
+--Si el hijo de alguna persona afiliada es mayor a 18 este tendrá el mensaje de que
+--ya no cuenta con el seguro por parte del padre--
+
+column VAR_ID_HIJO format a35
+column VAR_NOMBRE_HIJO format a20
+column INT_EDAD_HIJO format 9999
+column VAR_ID_PERSONA format a35
+set serveroutput on
+set linesize 300
+
+CREATE OR REPLACE TRIGGER Tg_mensaje_edad_18
+AFTER UPDATE ON TB_HIJO
+FOR EACH ROW
+BEGIN
+  IF :NEW.INT_EDAD_HIJO >= 18 THEN
+    DBMS_OUTPUT.PUT_LINE('Ya no cuenta con seguro de salud por parte del padre');
+  END IF;
+END;
+/
+
+--Comprobación--
+
+--Primero observamos la fila que queremos actualizar--
+
+select * from TB_HIJO where VAR_ID_HIJO = 'b7f626e2685b46c6aabbcd26ce072188';
+
+--Actualizamos la tabla--
+UPDATE TB_HIJO
+SET INT_EDAD_HIJO = 18 WHERE VAR_ID_HIJO = 'b7f626e2685b46c6aabbcd26ce072188';
+
+
+-----Tercer Trigger-----
+--En caso de que una persona actualice l número de aportaciones al número 24 o 
+mayor este observará el mensaje de que ya puede reclamar sus fondos de cesantía--
+
+column VAR_ID_APORTACION format a35
+column DT_FECHA_APORTACION format a20
+column INT_NO_APORTACION format 9999
+column VAR_DETALLE_APORTACION format a40
+column VAR_MONTO_APORTACION format a20
+set serveroutput on
+set linesize 300
+
+CREATE OR REPLACE TRIGGER Tg_mensaje_fondos
+AFTER UPDATE ON TB_APORTACION
+FOR EACH ROW
+BEGIN
+  IF :NEW.INT_NO_APORTACION >= 24 THEN
+    DBMS_OUTPUT.PUT_LINE('Ya puede reclamar los fondos de cesantía');
+  END IF;
+END;
+/
+
+
+CREATE UNIQUE INDEX ix_uniq_empresa
+ON TB_EMPRESA(VAR_NOMBRE_EMPRESA);
+
+--Comprobación--
+
+--Observar la fila a modificar--
+
+select * from TB_APORTACION where VAR_ID_APORTACION = '82a9098ce7694d5382c777bfe7195eb6';
+--Actulizar el campo de número de aportación--
+UPDATE TB_APORTACION
+SET INT_NO_APORTACION = 24 WHERE VAR_ID_APORTACION = '82a9098ce7694d5382c777bfe7195eb6';
+
+
+-----Cuarto Trigger-----
+--Verificar si una persona es pensionista (es decir, si su edad es mayor o igual a 65 años) 
+--y muestre un mensaje indicando que es acreedora a la pensión otorgada por la institución--
+
+CREATE OR REPLACE TRIGGER TRG_VERIFICAR_PENSIONISTA
+BEFORE INSERT OR UPDATE ON TB_PERSONA
+FOR EACH ROW
+DECLARE
+    edad NUMBER;
+BEGIN
+    -- Calculamos la edad de la persona a partir de su fecha de nacimiento
+    edad := TRUNC(MONTHS_BETWEEN(SYSDATE, :NEW.DT_FECHA_NAC_PERSONA) / 12);
+
+    -- Si la persona tiene 65 años o más, es pensionista
+    IF edad >= 65 THEN
+        DBMS_OUTPUT.PUT_LINE('La persona es acreedora a la pensión otorgada por la institución');
+    END IF;
+END;
+/
+
+--Comprobamos ingresando datos--
+
+INSERT INTO TB_PERSONA 
+(VAR_ID_PERSONA, VAR_NOMBRE_PERSONA, VAR_TEL_PERSONA, VAR_GENERO_PERSONA, DT_FECHA_NAC_PERSONA, VAR_CORREO_PERSONA, VAR_PROVINCIA_PERSONA, VAR_CANTON_PERSONA, VAR_PARROQUIA_PERSONA)
+VALUES ('1845612547', 'Victor Borquez', '0961245754', 'Masculino', TO_DATE('1950-01-01', 'YYYY-MM-DD'), 'victorcz@gmail.com', 'Pichincha', 'Quito', 'La Floresta');
+
+--Imprimir datos ordenados--
+column VAR_ID_PERSONA format a20
+column VAR_NOMBRE_PERSONA format a20
+column VAR_TEL_PERSONA format a15
+column VAR_GENERO_PERSONA format a15
+column VAR_CORREO_PERSONA format a20
+column VAR_PROVINCIA_PERSONA format a20
+column VAR_CANTON_PERSONA format a20
+column VAR_PARROQUIA_PERSONA format a20
+set serveroutput on
+set linesize 300
+SELECT * FROM TB_PERSONA 
+WHERE VAR_ID_PERSONA = 1845612547;
+
+
+-----Quinto Trigger-----
+--Verificar si el nombre de usuario ya existe en la tabla y evitar su inserción si ya existe--
+
+CREATE OR REPLACE TRIGGER TRG_TB_USUARIO_BEFORE_INSERT
+BEFORE INSERT ON TB_USUARIO
+FOR EACH ROW
+DECLARE
+    V_COUNT INTEGER;
+BEGIN
+    SELECT COUNT(*) INTO V_COUNT FROM TB_USUARIO WHERE VAR_NOMBRE_USUARIO = :NEW.VAR_NOMBRE_USUARIO;
+    IF V_COUNT > 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'El nombre de usuario ya existe en la tabla.');
+    END IF;
+END;
+/
+
+--Insertar nuevo registro--
+INSERT INTO TB_USUARIO (VAR_ID_USUARIO, VAR_NOMBRE_USUARIO, VAR_CONTRASENIA_USUARIO, VAR_ID_PERSONA)
+VALUES ('965', 'nayelimtc', 'ponymalta123', '1752373142');
+
+
+show errors;
+
+
+
+-------------------------PROCEDIMIENTOS-------------------------
+
+-----Primer Procedimiento-----
+--Realizar un proceso que indique si las persona tiene mas de 24 aportaciones para
+--poder ser acreedora de el préstamo quirografario--
+
+CREATE OR REPLACE PROCEDURE sp_consulta_aportaciones AS
+    c1 SYS_REFCURSOR;
+BEGIN
+    OPEN c1 FOR SELECT
+                                tb_persona.var_nombre_persona,
+                                tb_aportacion.int_no_aportacion,
+                                tb_aportacion.var_monto_aportacion
+                            FROM
+                                     tb_trabajo
+                                INNER JOIN tb_persona ON tb_trabajo.var_id_persona = tb_persona.var_id_persona
+                                INNER JOIN tb_aportacion ON tb_trabajo.var_id_aportacion = tb_aportacion.var_id_aportacion
+                WHERE
+                    tb_aportacion.int_no_aportacion >= 24;
+
+    dbms_sql.return_result(c1);
+END;
+/
+
+--Comprobar el procedieminto creado
+
+EXEC sp_consulta_aportaciones;
+
+
+-----Segundo Procedimiento-----
+--Personas que tengan mas de 3 aportaciones para poder tener
+--acceso al servicio de salud--
+
+CREATE OR REPLACE PROCEDURE sp_aportacion_salud AS
+    c1 SYS_REFCURSOR;
+BEGIN
+    OPEN c1 FOR SELECT
+                                tb_persona.var_nombre_persona,
+                                tb_aportacion.int_no_aportacion,
+                                tb_aportacion.var_monto_aportacion
+                            FROM
+                                     tb_trabajo
+                                INNER JOIN tb_persona ON tb_trabajo.var_id_persona = tb_persona.var_id_persona
+                                INNER JOIN tb_aportacion ON tb_trabajo.var_id_aportacion = tb_aportacion.var_id_aportacion
+                WHERE
+                    tb_aportacion.int_no_aportacion >= 3;
+
+    dbms_sql.return_result(c1);
+END;
+/
+
+
+EXEC sp_aportacion_salud;
+
+-----Tercer Procedimiento-----
+--Mostrar los artículos con el código al que pertenezcan que han sido cambiados 
+--o suspendidos con el paso del tiempo y han afectado a las personas aseguradas--
+
+CREATE OR REPLACE PROCEDURE sp_codigo_afiliacion AS
+    c1 SYS_REFCURSOR;
+BEGIN
+    OPEN c1 FOR SELECT TB_CODIGO.INT_ARTICULO, TB_CODIGO.VAR_NOMBRE_CODIGO, TB_CODIGO.VAR_ESTADO_CODIGO, TB_AFILIACION.VAR_NOMBRE_AFILIACION
+                FROM TB_CODIGO
+                INNER JOIN TB_BASELEGAL ON TB_CODIGO.VAR_ID_BASELEGAL = TB_BASELEGAL.VAR_ID_BASELEGAL
+                INNER JOIN TB_AFILIACION ON TB_BASELEGAL.VAR_ID_AFILIACION = TB_AFILIACION.VAR_ID_AFILIACION
+                WHERE VAR_ESTADO_CODIGO = 'Inactivo' AND VAR_NOMBRE_AFILIACION = 'Asegurado';
+
+    dbms_sql.return_result(c1);
+END;
+/
+
+EXEC sp_codigo_afiliacion;
+
+-----Cuarto Procedimiento-----
+--Las personas de Pichincha que han realizado aportaciones menores a 55 dólares y 
+--la fecha en que realizaron dicha aportación, esto para realizar cálculos de de lo que 
+--al afiliado le corresponde entregar un aporte al IESS del 9,45% de su sueldo o salario; 
+--mientras que al empleador, el 11,15% del salario del trabajador--
+
+CREATE OR REPLACE PROCEDURE sp_consulta_aportacion AS
+    c1 SYS_REFCURSOR;
+BEGIN
+    OPEN c1 FOR SELECT TB_PERSONA.VAR_NOMBRE_PERSONA, TB_PERSONA.VAR_PROVINCIA_PERSONA,
+                        TB_APORTACION.VAR_MONTO_APORTACION AS "MONTO APORTACION",
+                        TB_APORTACION.DT_FECHA_APORTACION AS "FECHA APORTACION"
+                 FROM TB_PERSONA
+                 INNER JOIN TB_TRABAJO ON TB_TRABAJO.VAR_ID_PERSONA=TB_PERSONA.VAR_ID_PERSONA
+                 INNER JOIN TB_APORTACION ON TB_TRABAJO.VAR_ID_APORTACION=TB_APORTACION.VAR_ID_APORTACION
+                 WHERE TB_APORTACION.VAR_MONTO_APORTACION < 900 AND TB_PERSONA.VAR_PROVINCIA_PERSONA = 'Pichincha';
+
+    dbms_sql.return_result(c1);
+END;
+/
+
+EXEC sp_consulta_aportacion;
+
+-----Quinto Procedimiento-----
+--Mostrar las personas que sean Pesionistas y consten en el sistema del Iess para 
+--contabilizar cuantas personas son acreedoras de la pensión otorgada por la institución--
+
+
+CREATE OR REPLACE PROCEDURE sp_consulta_usuario
+AS
+  c1 SYS_REFCURSOR;
+BEGIN
+  OPEN c1 FOR
+    SELECT TB_USUARIO.VAR_NOMBRE_USUARIO, TB_ROL.VAR_NOMBRE_ROL, TB_PERFIL.VAR_NOMBRE_PERFIL
+    FROM TB_ROL
+    INNER JOIN TB_PERFIL ON TB_ROL.VAR_ID_PERFIL = TB_PERFIL.VAR_ID_PERFIL
+    INNER JOIN TB_USUARIO ON TB_PERFIL.VAR_ID_USUARIO= TB_USUARIO.VAR_ID_USUARIO
+    WHERE VAR_NOMBRE_ROL = 'Pensionista' AND VAR_NOMBRE_PERFIL = 'Usuario';
+  dbms_sql.return_result(c1);
+END;
+/
+
+EXEC sp_consulta_usuario;
+
+
+
+-------------------------VISTAS-------------------------
+
+-----Primer Vista-----
+--Crear una vista que liste todos los hijos que sean mayores de edad--
+
+CREATE VIEW vista_hijo_mayores AS
+    SELECT
+        var_nombre_hijo,
+        int_edad_hijo
+    FROM
+        tb_hijo
+    WHERE
+        int_edad_hijo >= 18;
+
+--Ejecución de la Vista--
+
+Select * from vista_hijo_mayores;
+
+
+-----Segunda Vista-----
+--Crear una vista que indique todos lo códigos inactivos y la base legal a la
+--que pertenezcan--
+
+column var_id_baselegal format a35;
+column var_descripcion_baselegal format a20;
+column var_decreto_baselelgal format a20;
+column var_estado_baselelgal format a20;
+column var_id_afiliacion format a35;
+set serveroutput on
+set linesize 300
+
+column var_id_codigo format a35;
+column var_nombre_codigo format a20;
+column int_articulo format a20;
+column var_estado_codigo format a20;
+column var_detalle_codigo format a20;
+column var_id_baselegal format a35;
+set serveroutput on
+set linesize 300
+
+--Creación de la vista--
+
+CREATE VIEW vista_codigo_inactivo AS
+SELECT
+    tb_codigo.var_nombre_codigo as "Codigo",
+    tb_codigo.var_estado_codigo as "Estado del Codigo",
+    tb_baselegal.var_decreto_baselegal as "Base Legal"
+FROM
+         tb_codigo
+    INNER JOIN tb_baselegal ON tb_codigo.var_id_baselegal = tb_baselegal.var_id_baselegal
+WHERE
+    tb_codigo.var_estado_codigo = 'Inactivo';
+
+--Ejecución de la Vista--
+
+Select * from vista_codigo_inactivo;
+
+
+-----Tercer Vista-----
+--Mostrar todas personas afiliadas que aporten de manera voluntaria--
+
+CREATE VIEW vista_afiliado_voluntario AS
+    SELECT
+        tb_persona.var_nombre_persona as "Persona",
+        tb_afiliacion.var_nombre_afiliacion as "Afiliación",
+        tb_afiliacion.var_tipo_afiliacion as "Tipo Afiliacion"
+    FROM
+             tb_trabajo
+        INNER JOIN tb_persona ON tb_trabajo.var_id_persona = tb_persona.var_id_persona
+        INNER JOIN tb_afiliacion ON tb_trabajo.var_id_afiliacion = tb_afiliacion.var_id_afiliacion
+    WHERE
+            tb_afiliacion.var_nombre_afiliacion = 'Voluntario'
+        AND tb_afiliacion.var_tipo_afiliacion = 'Afiliado';
+    
+--Ejecución de la Vista--
+
+SELECT * FROM vista_afiliado_voluntario;
+
+-----Cuarta Vista-----
+--Los usuarios que tengan un perfil creado hace 2 años--
+
+CREATE VIEW vista_usuario_perfil AS
+    SELECT
+        tb_usuario.var_nombre_usuario,
+        tb_perfil.var_descripcion_perfil
+    FROM
+             tb_perfil
+        INNER JOIN tb_usuario ON tb_perfil.var_id_usuario = tb_usuario.var_id_usuario
+    WHERE
+        tb_perfil.var_descripcion_perfil = 'Creado hace 2 aÃƒÂ±os';
+    
+--Ejecución de la Vista--
+
+SELECT * FROM vista_usuario_perfil;
